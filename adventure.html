@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castle Adventure - Interactive Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            max-width: 850px;
+        }
+
+        #adventure-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        /* Initially hide equipment */
+        #Shield {
+            display: none;
+        }
+
+        #tie {
+            display: none;
+        }
+
+        #helmet {
+            display: none;
+        }
+
+        /* Door glow pulse animation */
+        #door {
+            cursor: pointer;
+            animation: glow-pulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+            }
+        }
+
+        /* Button hover effects */
+        #shield-btn,
+        #tie-btn,
+        #helmet-btn {
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        #shield-btn:hover,
+        #tie-btn:hover,
+        #helmet-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        #shield-btn:active,
+        #tie-btn:active,
+        #helmet-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Hero animation classes */
+        .hero-moving {
+            transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-fade {
+            transition: opacity 1s ease-out;
+        }
+
+        /* Button fade out */
+        .button-fade {
+            transition: opacity 0.5s ease-out;
+        }
+
+        .info-text {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-text strong {
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg id="adventure-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+            <defs>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+
+            <!-- Background -->
+            <rect width="800" height="600" fill="#2c3e50"/>
+            <rect width="800" height="200" y="400" fill="#34495e"/>
+
+            <!-- Castle Door (on the right) -->
+            <g id="door">
+                <rect x="650" y="300" width="100" height="150" fill="#8B4513" stroke="#654321" stroke-width="3"/>
+                <rect x="655" y="305" width="90" height="140" fill="#A0522D"/>
+                <line x1="650" y1="340" x2="750" y2="340" stroke="#654321" stroke-width="2"/>
+                <line x1="650" y1="380" x2="750" y2="380" stroke="#654321" stroke-width="2"/>
+                <circle cx="730" cy="375" r="5" fill="#FFD700"/>
+                <rect x="640" y="280" width="120" height="20" fill="#7a3f1f"/>
+                <rect x="640" y="450" width="120" height="10" fill="#654321"/>
+            </g>
+
+            <!-- Hero Character (starts on the left) -->
+            <g id="hero">
+                <!-- Body -->
+                <ellipse cx="100" cy="380" rx="20" ry="30" fill="#e74c3c"/>
+                <!-- Head -->
+                <circle cx="100" cy="340" r="18" fill="#f0c9a8"/>
+                <!-- Eyes -->
+                <circle cx="95" cy="338" r="2" fill="#000"/>
+                <circle cx="105" cy="338" r="2" fill="#000"/>
+                <!-- Smile -->
+                <path d="M 95 345 Q 100 348 105 345" stroke="#000" stroke-width="1" fill="none"/>
+                <!-- Arms -->
+                <line x1="85" y1="365" x2="70" y2="380" stroke="#f0c9a8" stroke-width="5" stroke-linecap="round"/>
+                <line x1="115" y1="365" x2="130" y2="380" stroke="#f0c9a8" stroke-width="5" stroke-linecap="round"/>
+                <!-- Legs -->
+                <line x1="95" y1="410" x2="90" y2="440" stroke="#3498db" stroke-width="6" stroke-linecap="round"/>
+                <line x1="105" y1="410" x2="110" y2="440" stroke="#3498db" stroke-width="6" stroke-linecap="round"/>
+                <!-- Feet -->
+                <ellipse cx="88" cy="442" rx="8" ry="4" fill="#2c3e50"/>
+                <ellipse cx="112" cy="442" rx="8" ry="4" fill="#2c3e50"/>
+            </g>
+
+            <!-- Shield (equipment for hero) -->
+            <g id="Shield">
+                <path d="M 95 355 L 85 365 L 85 385 Q 90 395 95 395 Q 100 395 105 395 Q 110 395 115 385 L 115 365 Z" fill="#C0C0C0" stroke="#808080" stroke-width="2"/>
+                <line x1="95" y1="360" x2="105" y2="390" stroke="#FFD700" stroke-width="2"/>
+                <line x1="105" y1="360" x2="95" y2="390" stroke="#FFD700" stroke-width="2"/>
+                <circle cx="100" cy="375" r="6" fill="#FFD700"/>
+            </g>
+
+            <!-- Tie (equipment for hero) -->
+            <g id="tie">
+                <polygon points="100,350 95,355 95,375 100,385 105,375 105,355" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+                <rect x="97" y="348" width="6" height="4" fill="#c0392b"/>
+                <line x1="100" y1="355" x2="100" y2="382" stroke="#fff" stroke-width="0.5"/>
+            </g>
+
+            <!-- Helmet (equipment for hero) -->
+            <g id="helmet">
+                <ellipse cx="100" cy="332" rx="22" ry="16" fill="#C0C0C0" stroke="#808080" stroke-width="2"/>
+                <rect x="78" y="332" width="44" height="8" fill="#C0C0C0" stroke="#808080" stroke-width="2"/>
+                <polygon points="100,320 95,328 105,328" fill="#FFD700"/>
+                <circle cx="100" cy="325" r="3" fill="#ff0000"/>
+            </g>
+
+            <!-- Control Buttons (bottom of screen) -->
+            <g id="shield-btn">
+                <rect x="50" y="520" width="120" height="60" rx="10" fill="#3498db" stroke="#2980b9" stroke-width="3"/>
+                <text x="110" y="555" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">SHIELD</text>
+            </g>
+
+            <g id="tie-btn">
+                <rect x="200" y="520" width="120" height="60" rx="10" fill="#e74c3c" stroke="#c0392b" stroke-width="3"/>
+                <text x="260" y="555" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">TIE</text>
+            </g>
+
+            <g id="helmet-btn">
+                <rect x="350" y="520" width="120" height="60" rx="10" fill="#95a5a6" stroke="#7f8c8d" stroke-width="3"/>
+                <text x="410" y="555" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">HELMET</text>
+            </g>
+
+            <!-- Instructions -->
+            <text x="400" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ecf0f1" text-anchor="middle">Castle Adventure</text>
+            <text x="400" y="55" font-family="Arial, sans-serif" font-size="14" fill="#bdc3c7" text-anchor="middle">Equip your hero, then click the door to begin!</text>
+        </svg>
+
+        <div class="info-text">
+            <strong>Instructions:</strong> Click the buttons to equip your hero with a shield, tie, or helmet.
+            When ready, click the glowing door to start your adventure!
+        </div>
+    </div>
+
+    <script>
+        // Get all the interactive elements
+        const shieldBtn = document.getElementById('shield-btn');
+        const tieBtn = document.getElementById('tie-btn');
+        const helmetBtn = document.getElementById('helmet-btn');
+        const shield = document.getElementById('Shield');
+        const tie = document.getElementById('tie');
+        const helmet = document.getElementById('helmet');
+        const door = document.getElementById('door');
+        const hero = document.getElementById('hero');
+
+        let adventureStarted = false;
+
+        // Toggle visibility functions
+        function toggleElement(element) {
+            const currentDisplay = window.getComputedStyle(element).display;
+            element.style.display = currentDisplay === 'none' ? 'block' : 'none';
+        }
+
+        // Button click handlers
+        shieldBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleElement(shield);
+        });
+
+        tieBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleElement(tie);
+        });
+
+        helmetBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleElement(helmet);
+        });
+
+        // Door click handler - starts the adventure
+        door.addEventListener('click', (e) => {
+            if (adventureStarted) return;
+            adventureStarted = true;
+
+            e.stopPropagation();
+
+            // Hide all buttons with fade effect
+            [shieldBtn, tieBtn, helmetBtn].forEach(btn => {
+                btn.classList.add('button-fade');
+                btn.style.opacity = '0';
+                setTimeout(() => {
+                    btn.style.display = 'none';
+                }, 500);
+            });
+
+            // Stop the door glow animation
+            door.style.animation = 'none';
+            door.style.filter = 'none';
+
+            // Move hero to the door
+            hero.classList.add('hero-moving');
+
+            // Calculate the translation needed (door is at x=700, hero starts at x=100)
+            // We want the hero to move 600 pixels to the right
+            hero.style.transform = 'translateX(600px)';
+
+            // After hero reaches the door, fade him away
+            setTimeout(() => {
+                hero.classList.add('hero-fade');
+                hero.style.opacity = '0';
+            }, 3000);
+
+            // Optional: Show completion message
+            setTimeout(() => {
+                const svg = document.getElementById('adventure-svg');
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '400');
+                text.setAttribute('y', '300');
+                text.setAttribute('font-family', 'Arial, sans-serif');
+                text.setAttribute('font-size', '36');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('fill', '#ecf0f1');
+                text.setAttribute('text-anchor', 'middle');
+                text.textContent = 'Adventure Awaits!';
+                text.style.opacity = '0';
+                text.style.transition = 'opacity 1s ease-in';
+
+                svg.appendChild(text);
+
+                setTimeout(() => {
+                    text.style.opacity = '1';
+                }, 50);
+            }, 4000);
+        });
+
+        // Add pointer cursor style to door
+        door.style.cursor = 'pointer';
+
+        console.log('🏰 Castle Adventure loaded! Click the buttons to equip your hero!');
+    </script>
+</body>
+</html>
